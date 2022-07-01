@@ -29,7 +29,8 @@ pxtnUnitTone::pxtnUnitTone(std::shared_ptr<const pxtnWoice> p_woice) {
     _pan_times[i] = 0;
   }
 
-  if (!set_woice(p_woice, true)) throw "Voice is null";
+  // if (!set_woice(p_woice, true)) throw "Voice is null";
+  set_woice(p_woice, true); // todo handle it without exceptions
 }
 
 void pxtnUnitTone::Tone_Clear() {
