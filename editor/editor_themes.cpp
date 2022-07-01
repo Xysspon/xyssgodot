@@ -400,7 +400,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
 		preset_base_color = Color(0.24, 0.24, 0.24);
 		preset_contrast = default_contrast;
 	} else if (preset == "Light") {
-		preset_accent_color = Color(0.18, 0.50, 1.00);
+		preset_accent_color = Color(0.87, 0.13, 0.67);
 		preset_base_color = Color(0.9, 0.9, 0.9);
 		// A negative contrast rate looks better for light themes, since it better follows the natural order of UI "elevation".
 		preset_contrast = -0.08;
@@ -414,7 +414,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
 		// A negative contrast rate looks better for light themes, since it better follows the natural order of UI "elevation".
 		preset_contrast = -0.08;
 	} else { // Default
-		preset_accent_color = Color(0.44, 0.73, 0.98);
+		preset_accent_color = Color(0.87, 0.13, 0.67);
 		preset_base_color = Color(0.21, 0.24, 0.29);
 		preset_contrast = default_contrast;
 	}
