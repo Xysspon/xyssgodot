@@ -22,21 +22,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Editor (target=release_debug, tools=yes, tests=yes)
-            cache-name: windows-editor
+          - name: Editor w/ Mono (target=release_debug, tools=yes, tests=yes)
+            cache-name: windows-editor-mono
             target: release_debug
             tools: true
-            tests: true
+            tests: false
             # Skip debug symbols, they're way too big with MSVC.
-            sconsflags: debug_symbols=no
-            bin: "./bin/godot.windows.opt.tools.64.exe"
+            sconsflags: module_mono_enabled=yes mono_static=yes mono_glue=no
+            bin: "./bin/godot.windows.opt.tools.64.mono.exe"
+            build-mono: true
 
-          - name: Template (target=release, tools=no)
-            cache-name: windows-template
+          - name: Template w/ Mono (target=release, tools=no)
+            cache-name: windows-template-mono
             target: release
             tools: false
             tests: false
-            sconsflags: debug_symbols=no
+            sconsflags: module_mono_enabled=yes mono_static=yes mono_glue=no debug_symbols=no
+            build-mono: true
 
     steps:
       - uses: actions/checkout@v2
@@ -47,9 +49,12 @@ jobs:
           cache-name: ${{ matrix.cache-name }}
         continue-on-error: true
 
-
       - name: Setup python and scons
         uses: ./.github/actions/godot-deps
+
+      - name: Configure dependencies
+        run: |
+          choco install -y mono
 
       - name: Compilation
         uses: ./.github/actions/godot-build
@@ -59,6 +64,21 @@ jobs:
           target: ${{ matrix.target }}
           tools: ${{ matrix.tools }}
           tests: ${{ matrix.tests }}
+
+      - name: Generate Mono glue
+        if: ${{ matrix.build-mono }}
+        run: |
+          ${{ matrix.bin }} --headless --generate-mono-glue modules/mono/glue || true
+
+      # Rebuild with mono
+      - name: Compilation (mono_glue=yes)
+        uses: ./.github/actions/godot-build
+        if: ${{ matrix.build-mono }}
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} mono_glue=yes
+          platform: windows
+          target: ${{ matrix.target }}
+          tools: ${{ matrix.tools }}
 
       # Execute unit tests for the editor
       - name: Unit tests
