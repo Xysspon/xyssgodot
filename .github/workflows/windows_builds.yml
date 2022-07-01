@@ -68,7 +68,7 @@ jobs:
       - name: Generate Mono glue
         if: ${{ matrix.build-mono }}
         run: |
-          ${{ matrix.bin }} --headless --generate-mono-glue modules/mono/glue || true
+          ${{ matrix.bin }} --headless --generate-mono-glue modules/mono/glue
 
       # Rebuild with mono
       - name: Compilation (mono_glue=yes)
