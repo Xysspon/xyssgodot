@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+Import("env")
+Import("env_modules")
+
+env_pxtone = env_modules.Clone()
+
+# Thirdparty source files
+
+thirdparty_obj = []
+
+if env["builtin_pxtone"]:
+    thirdparty_dir = "#thirdparty/pxtone/"
+    thirdparty_sources = [
+        "pxtnDelay.cpp",
+        "pxtnDescriptor.cpp",
+        "pxtnError.cpp",
+        "pxtnEvelist.cpp",
+        "pxtnMaster.cpp",
+        "pxtnMem.cpp",
+        "pxtnOverDrive.cpp",
+        "pxtnPulse_Frequency.cpp",
+        "pxtnPulse_NoiseBuilder.cpp",
+        "pxtnPulse_Noise.cpp",
+        "pxtnPulse_Oggv.cpp",
+        "pxtnPulse_Oscillator.cpp",
+        "pxtnPulse_PCM.cpp",
+        "pxtnService.cpp",
+        "pxtnService_moo.cpp",
+        "pxtnText.cpp",
+        "pxtnUnit.cpp",
+        "pxtnWoice.cpp",
+        "pxtnWoice_io.cpp",
+        "pxtnWoicePTV.cpp",
+        "pxtoneNoise.cpp",
+    ]
+
+    thirdparty_sources = [thirdparty_dir + file for file in thirdparty_sources]
+
+    env_pxtone.Prepend(CPPPATH=[thirdparty_dir])
+    #env_pxtone.Append(CPPDEFINES=["pxINCLUDE_OGGVORBIS"])
+
+    env_thirdparty = env_pxtone.Clone()
+    env_thirdparty.disable_warnings()
+    env_thirdparty.add_source_files(thirdparty_obj, thirdparty_sources)
+    env.modules_sources += thirdparty_obj
+
+
+# Godot source files
+
+module_obj = []
+
+env_pxtone.add_source_files(module_obj, "*.cpp")
+env.modules_sources += module_obj
+
+# Needed to force rebuilding the module files when the thirdparty library is updated.
+env.Depends(module_obj, thirdparty_obj)
