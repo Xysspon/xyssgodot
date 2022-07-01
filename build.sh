@@ -13,7 +13,7 @@ if [ $OSNAME = "Linux" ]; then
 
 	#scons -c
 	scons -j12 platform=linuxbsd tools=yes module_mono_enabled=yes mono_glue=no
-	./bin/godot.linuxbsd.tools.64.mono --generate-mono-glue modules/mono/glue/ 
+	./bin/godot.linuxbsd.tools.64.mono --generate-mono-glue modules/mono/glue/
 	scons -j12 platform=linuxbsd tools=yes module_mono_enabled=yes mono_glue=yes
 elif [ $OSNAME = "Darwin" ]; then
 	echo "Building for MacOS..."
