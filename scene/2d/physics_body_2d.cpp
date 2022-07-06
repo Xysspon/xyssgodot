@@ -1098,7 +1098,7 @@ void RigidDynamicBody2D::_reload_physics_characteristics() {
 
 bool CharacterBody2D::move_and_slide() {
 	// Hack in order to work with calling from _process as well as from _physics_process; calling from thread is risky.
-	double delta = Engine::get_singleton()->is_in_physics_frame() ? get_physics_process_delta_time() : get_process_delta_time();
+	double delta = delta_disabled ? 1.0 : Engine::get_singleton()->is_in_physics_frame() ? get_physics_process_delta_time() : get_process_delta_time();
 
 	Vector2 current_platform_velocity = platform_velocity;
 	Transform2D gt = get_global_transform();
@@ -1574,6 +1574,14 @@ real_t CharacterBody2D::get_safe_margin() const {
 	return margin;
 }
 
+bool CharacterBody2D::is_delta_disabled() const {
+	return delta_disabled;
+}
+
+void CharacterBody2D::set_delta_disabled(bool p_disabled) {
+	delta_disabled = p_disabled;
+}
+
 bool CharacterBody2D::is_floor_stop_on_slope_enabled() const {
 	return floor_stop_on_slope;
 }
@@ -1704,6 +1712,8 @@ void CharacterBody2D::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_safe_margin", "pixels"), &CharacterBody2D::set_safe_margin);
 	ClassDB::bind_method(D_METHOD("get_safe_margin"), &CharacterBody2D::get_safe_margin);
+	ClassDB::bind_method(D_METHOD("is_delta_disabled"), &CharacterBody2D::is_delta_disabled);
+	ClassDB::bind_method(D_METHOD("set_delta_disabled", "disabled"), &CharacterBody2D::set_delta_disabled);
 	ClassDB::bind_method(D_METHOD("is_floor_stop_on_slope_enabled"), &CharacterBody2D::is_floor_stop_on_slope_enabled);
 	ClassDB::bind_method(D_METHOD("set_floor_stop_on_slope_enabled", "enabled"), &CharacterBody2D::set_floor_stop_on_slope_enabled);
 	ClassDB::bind_method(D_METHOD("set_floor_constant_speed_enabled", "enabled"), &CharacterBody2D::set_floor_constant_speed_enabled);
@@ -1756,6 +1766,7 @@ void CharacterBody2D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "slide_on_ceiling"), "set_slide_on_ceiling_enabled", "is_slide_on_ceiling_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_slides", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_max_slides", "get_max_slides");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "wall_min_slide_angle", PROPERTY_HINT_RANGE, "0,180,0.1,radians", PROPERTY_USAGE_DEFAULT), "set_wall_min_slide_angle", "get_wall_min_slide_angle");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "delta_disabled"), "set_delta_disabled", "is_delta_disabled");
 	ADD_GROUP("Floor", "floor_");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "floor_stop_on_slope"), "set_floor_stop_on_slope_enabled", "is_floor_stop_on_slope_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "floor_constant_speed"), "set_floor_constant_speed_enabled", "is_floor_constant_speed_enabled");

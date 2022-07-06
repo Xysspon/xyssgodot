@@ -366,6 +366,7 @@ private:
 	MotionMode motion_mode = MOTION_MODE_GROUNDED;
 	MovingPlatformApplyVelocityOnLeave moving_platform_apply_velocity_on_leave = PLATFORM_VEL_ON_LEAVE_ALWAYS;
 
+	bool delta_disabled = false;
 	bool floor_constant_speed = false;
 	bool floor_stop_on_slope = true;
 	bool floor_block_on_wall = true;
@@ -398,6 +399,9 @@ private:
 
 	void set_safe_margin(real_t p_margin);
 	real_t get_safe_margin() const;
+
+	bool is_delta_disabled() const;
+	void set_delta_disabled(bool p_disabled);
 
 	bool is_floor_stop_on_slope_enabled() const;
 	void set_floor_stop_on_slope_enabled(bool p_enabled);
