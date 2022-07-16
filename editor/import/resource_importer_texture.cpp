@@ -223,6 +223,8 @@ void ResourceImporterTexture::get_import_options(const String &p_path, List<Impo
 	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "mipmaps/limit", PROPERTY_HINT_RANGE, "-1,256"), -1));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "roughness/mode", PROPERTY_HINT_ENUM, "Detect,Disabled,Red,Green,Blue,Alpha,Gray"), 0));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::STRING, "roughness/src_normal", PROPERTY_HINT_FILE, "*.bmp,*.dds,*.exr,*.jpeg,*.jpg,*.hdr,*.png,*.svg,*.tga,*.webp"), ""));
+	r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "colorswap/convert_to_lut_compatible"), false));
+	r_options->push_back(ImportOption(PropertyInfo(Variant::STRING, "colorswap/src_colormap", PROPERTY_HINT_FILE, "*.bmp,*.dds,*.exr,*.jpeg,*.jpg,*.hdr,*.png,*.svg,*.tga,*.webp"), ""));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "process/fix_alpha_border"), p_preset != PRESET_3D));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "process/premult_alpha"), false));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "process/normal_map_invert_y"), false));
@@ -427,6 +429,8 @@ Error ResourceImporterTexture::import(const String &p_source_file, const String 
 	const int bptc_ldr = p_options["compress/bptc_ldr"];
 	const int roughness = p_options["roughness/mode"];
 	const String normal_map = p_options["roughness/src_normal"];
+	const bool lutify = p_options["colorswap/convert_to_lut_compatible"];
+	const String color_map = p_options["colorswap/src_colormap"];
 	float scale = 1.0;
 	if (p_options.has("svg/scale")) {
 		scale = p_options["svg/scale"];
@@ -446,6 +450,40 @@ Error ResourceImporterTexture::import(const String &p_source_file, const String 
 	Error err = ImageLoader::load_image(p_source_file, image, nullptr, hdr_as_srgb, scale);
 	if (err != OK) {
 		return err;
+	}
+
+	Ref<Image> colormap_image;
+	if (lutify && FileAccess::exists(color_map)) {
+		colormap_image.instantiate();
+		if (ImageLoader::load_image(color_map, colormap_image) == OK) {
+			// the first column is the source color map
+			// the height of the image is the number of colors in the map
+
+			int num_colors = colormap_image->get_height();
+			int div = num_colors - 1;
+			if (div == 0) {
+				div = 1;
+			}
+			float mult = 1.0f / float(div);
+
+			for (int y = 0; y < image->get_height(); y++) {
+				for (int x = 0; x < image->get_width(); x++) {
+					Color pixel = image->get_pixel(x, y);
+
+					for (int i = 0; i < num_colors; i++) {
+						Color color = colormap_image->get_pixel(0, i);
+
+						if (pixel.r == color.r && pixel.g == color.g && pixel.b == color.b) {
+							pixel.r = i * mult;
+							pixel.g = 0;
+							pixel.b = 0;
+							image->set_pixel(x, y, pixel);
+							break;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	Array formats_imported;
