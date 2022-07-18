@@ -234,7 +234,7 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 	theme->set_color("font_hover_color", "OptionButton", control_font_hover_color);
 	theme->set_color("font_focus_color", "OptionButton", control_font_focus_color);
 	theme->set_color("font_disabled_color", "OptionButton", control_font_disabled_color);
-	theme->set_color("font_shadow_color", "Button", Color(0, 0, 0, 0));
+	theme->set_color("font_shadow_color", "OptionButton", Color(0, 0, 0, 0));
 	theme->set_color("font_outline_color", "OptionButton", Color(1, 1, 1));
 
 	theme->set_constant("shadow_offset_x", "OptionButton", 1 * scale);

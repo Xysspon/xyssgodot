@@ -146,6 +146,8 @@
 			A higher value means it's more flexible for detecting collision, which helps with consistently detecting walls and floors.
 			A lower value forces the collision algorithm to use more exact detection, so it can be used in cases that specifically require precision, e.g at very low scale to avoid visible jittering, or for stability with a stack of character bodies.
 		</member>
+		<member name="delta_disabled" type="bool" setter="set_delta_disabled" getter="is_delta_disabled" default="false">
+		</member>
 		<member name="floor_block_on_wall" type="bool" setter="set_floor_block_on_wall_enabled" getter="is_floor_block_on_wall_enabled" default="true">
 			If [code]true[/code], the body will be able to move on the floor only. This option avoids to be able to walk on walls, it will however allow to slide down along them.
 		</member>
