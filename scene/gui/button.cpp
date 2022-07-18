@@ -345,7 +345,7 @@ void Button::_notification(int p_what) {
 			Color font_outline_color = get_theme_color(SNAME("font_outline_color"));
 			Color font_shadow_color = get_theme_color(SNAME("font_shadow_color"));
 			Point2 shadow_ofs(get_theme_constant(SNAME("shadow_offset_x")), get_theme_constant(SNAME("shadow_offset_y")));
-			
+
 			int outline_size = get_theme_constant(SNAME("outline_size"));
 			int shadow_outline_size = get_theme_constant(SNAME("shadow_outline_size"));
 			if ((outline_size > 0 && font_outline_color.a != 0) || (font_shadow_color.a != 0)) {
