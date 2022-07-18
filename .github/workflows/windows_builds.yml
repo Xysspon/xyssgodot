@@ -38,6 +38,7 @@ jobs:
             tools: false
             tests: false
             sconsflags: module_mono_enabled=yes mono_static=yes mono_glue=no debug_symbols=no
+            bin: "./bin/godot.windows.opt.64.mono.exe"
             build-mono: true
 
     steps:
