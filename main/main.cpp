@@ -685,7 +685,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
 	I = args.front();
 	while (I) {
-#ifdef OSX_ENABLED
+#ifdef MACOS_ENABLED
 		// Ignore the process serial number argument passed by macOS Gatekeeper.
 		// Otherwise, Godot would try to open a non-existent project on the first start and abort.
 		if (I->get().begins_with("-psn_")) {
@@ -1044,10 +1044,9 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
 			if (I->next()) {
 				String p = I->next()->get();
-				if (OS::get_singleton()->set_cwd(p) == OK) {
-					//nothing
-				} else {
-					project_path = I->next()->get(); //use project_path instead
+				if (OS::get_singleton()->set_cwd(p) != OK) {
+					OS::get_singleton()->print("Invalid project path specified: \"%s\", aborting.\n", p.utf8().get_data());
+					goto error;
 				}
 				N = I->next()->next();
 			} else {
@@ -2669,7 +2668,7 @@ bool Main::start() {
 				ERR_FAIL_COND_V_MSG(!scene, false, "Failed loading scene: " + local_game_path);
 				sml->add_current_scene(scene);
 
-#ifdef OSX_ENABLED
+#ifdef MACOS_ENABLED
 				String mac_iconpath = GLOBAL_DEF("application/config/macos_native_icon", "Variant()");
 				if (!mac_iconpath.is_empty()) {
 					DisplayServer::get_singleton()->set_native_icon(mac_iconpath);
