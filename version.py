@@ -1,4 +1,4 @@
-short_name = "godot"
+short_name = "xyssgodot"
 name = "XyssGodot Engine"
 major = 4
 minor = 0
@@ -6,5 +6,5 @@ patch = 0
 status = "alpha"
 module_config = ""
 year = 2022
-website = "https://godotengine.org"
+website = "https://github.com/Xysspon/xyssgodot"
 docs = "latest"
