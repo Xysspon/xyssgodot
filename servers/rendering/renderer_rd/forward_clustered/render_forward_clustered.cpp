@@ -783,12 +783,12 @@ void RenderForwardClustered::_render_list_with_threads(RenderListParameters *p_p
 }
 
 void RenderForwardClustered::_setup_environment(const RenderDataRD *p_render_data, bool p_no_fog, const Size2i &p_screen_size, bool p_flip_y, const Color &p_default_bg_color, bool p_opaque_render_buffers, bool p_pancake_shadows, int p_index) {
-	//Projection projection = p_render_data->cam_projection;
+	//CameraMatrix projection = p_render_data->cam_projection;
 	//projection.flip_y(); // Vulkan and modern APIs use Y-Down
-	Projection correction;
+	CameraMatrix correction;
 	correction.set_depth_correction(p_flip_y);
 	correction.add_jitter_offset(p_render_data->taa_jitter);
-	Projection projection = correction * p_render_data->cam_projection;
+	CameraMatrix projection = correction * p_render_data->cam_projection;
 
 	//store camera into ubo
 	RendererRD::MaterialStorage::store_camera(projection, scene_state.ubo.projection_matrix);
@@ -978,10 +978,10 @@ void RenderForwardClustered::_setup_environment(const RenderDataRD *p_render_dat
 		if (render_buffers->use_taa || get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_MOTION_VECTORS) {
 			memcpy(&scene_state.prev_ubo, &scene_state.ubo, sizeof(SceneState::UBO));
 
-			Projection prev_correction;
+			CameraMatrix prev_correction;
 			prev_correction.set_depth_correction(true);
 			prev_correction.add_jitter_offset(p_render_data->prev_taa_jitter);
-			Projection prev_projection = prev_correction * p_render_data->prev_cam_projection;
+			CameraMatrix prev_projection = prev_correction * p_render_data->prev_cam_projection;
 
 			//store camera into ubo
 			RendererRD::MaterialStorage::store_camera(prev_projection, scene_state.prev_ubo.projection_matrix);
@@ -1571,9 +1571,9 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 		if (draw_sky || draw_sky_fog_only || environment_get_reflection_source(p_render_data->environment) == RS::ENV_REFLECTION_SOURCE_SKY || environment_get_ambient_source(p_render_data->environment) == RS::ENV_AMBIENT_SOURCE_SKY) {
 			RENDER_TIMESTAMP("Setup Sky");
 			RD::get_singleton()->draw_command_begin_label("Setup Sky");
-			Projection projection = p_render_data->cam_projection;
+			CameraMatrix projection = p_render_data->cam_projection;
 			if (p_render_data->reflection_probe.is_valid()) {
-				Projection correction;
+				CameraMatrix correction;
 				correction.set_depth_correction(true);
 				projection = correction * p_render_data->cam_projection;
 			}
@@ -1702,9 +1702,9 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 		bool will_continue_color = (can_continue_color || draw_sky || draw_sky_fog_only);
 		bool will_continue_depth = (can_continue_depth || draw_sky || draw_sky_fog_only);
 
-		Projection dc;
+		CameraMatrix dc;
 		dc.set_depth_correction(true);
-		Projection cm = (dc * p_render_data->cam_projection) * Projection(p_render_data->cam_transform.affine_inverse());
+		CameraMatrix cm = (dc * p_render_data->cam_projection) * CameraMatrix(p_render_data->cam_transform.affine_inverse());
 		RD::DrawListID draw_list = RD::get_singleton()->draw_list_begin(color_only_framebuffer, RD::INITIAL_ACTION_CONTINUE, will_continue_color ? RD::FINAL_ACTION_CONTINUE : RD::FINAL_ACTION_READ, RD::INITIAL_ACTION_CONTINUE, will_continue_depth ? RD::FINAL_ACTION_CONTINUE : RD::FINAL_ACTION_READ);
 		RD::get_singleton()->draw_command_begin_label("Debug VoxelGIs");
 		for (int i = 0; i < (int)p_render_data->voxel_gi_instances->size(); i++) {
@@ -1719,11 +1719,11 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 		bool will_continue_color = (can_continue_color || draw_sky || draw_sky_fog_only);
 		bool will_continue_depth = (can_continue_depth || draw_sky || draw_sky_fog_only);
 
-		Projection dc;
+		CameraMatrix dc;
 		dc.set_depth_correction(true);
-		Projection cms[RendererSceneRender::MAX_RENDER_VIEWS];
+		CameraMatrix cms[RendererSceneRender::MAX_RENDER_VIEWS];
 		for (uint32_t v = 0; v < p_render_data->view_count; v++) {
-			cms[v] = (dc * p_render_data->view_projection[v]) * Projection(p_render_data->cam_transform.affine_inverse());
+			cms[v] = (dc * p_render_data->view_projection[v]) * CameraMatrix(p_render_data->cam_transform.affine_inverse());
 		}
 		_debug_sdfgi_probes(p_render_data->render_buffers, color_only_framebuffer, p_render_data->view_count, cms, will_continue_color, will_continue_depth);
 	}
@@ -1734,9 +1734,9 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 		RD::get_singleton()->draw_command_begin_label("Draw Sky");
 
 		if (p_render_data->reflection_probe.is_valid()) {
-			Projection correction;
+			CameraMatrix correction;
 			correction.set_depth_correction(true);
-			Projection projection = correction * p_render_data->cam_projection;
+			CameraMatrix projection = correction * p_render_data->cam_projection;
 			sky.draw(env, can_continue_color, can_continue_depth, color_only_framebuffer, 1, &projection, p_render_data->cam_transform, time);
 		} else {
 			sky.draw(env, can_continue_color, can_continue_depth, color_only_framebuffer, p_render_data->view_count, p_render_data->view_projection, p_render_data->cam_transform, time);
@@ -1854,7 +1854,7 @@ void RenderForwardClustered::_render_shadow_begin() {
 	scene_state.instance_data[RENDER_LIST_SECONDARY].clear();
 }
 
-void RenderForwardClustered::_render_shadow_append(RID p_framebuffer, const PagedArray<GeometryInstance *> &p_instances, const Projection &p_projection, const Transform3D &p_transform, float p_zfar, float p_bias, float p_normal_bias, bool p_use_dp, bool p_use_dp_flip, bool p_use_pancake, const Plane &p_camera_plane, float p_lod_distance_multiplier, float p_screen_mesh_lod_threshold, const Rect2i &p_rect, bool p_flip_y, bool p_clear_region, bool p_begin, bool p_end, RendererScene::RenderInfo *p_render_info) {
+void RenderForwardClustered::_render_shadow_append(RID p_framebuffer, const PagedArray<GeometryInstance *> &p_instances, const CameraMatrix &p_projection, const Transform3D &p_transform, float p_zfar, float p_bias, float p_normal_bias, bool p_use_dp, bool p_use_dp_flip, bool p_use_pancake, const Plane &p_camera_plane, float p_lod_distance_multiplier, float p_screen_mesh_lod_threshold, const Rect2i &p_rect, bool p_flip_y, bool p_clear_region, bool p_begin, bool p_end, RendererScene::RenderInfo *p_render_info) {
 	uint32_t shadow_pass_index = scene_state.shadow_passes.size();
 
 	SceneState::ShadowPass shadow_pass;
@@ -1944,7 +1944,7 @@ void RenderForwardClustered::_render_shadow_end(uint32_t p_barrier) {
 	RD::get_singleton()->draw_command_end_label();
 }
 
-void RenderForwardClustered::_render_particle_collider_heightfield(RID p_fb, const Transform3D &p_cam_transform, const Projection &p_cam_projection, const PagedArray<GeometryInstance *> &p_instances) {
+void RenderForwardClustered::_render_particle_collider_heightfield(RID p_fb, const Transform3D &p_cam_transform, const CameraMatrix &p_cam_projection, const PagedArray<GeometryInstance *> &p_instances) {
 	RENDER_TIMESTAMP("Setup GPUParticlesCollisionHeightField3D");
 
 	RD::get_singleton()->draw_command_begin_label("Render Collider Heightfield");
@@ -1983,7 +1983,7 @@ void RenderForwardClustered::_render_particle_collider_heightfield(RID p_fb, con
 	RD::get_singleton()->draw_command_end_label();
 }
 
-void RenderForwardClustered::_render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<GeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) {
+void RenderForwardClustered::_render_material(const Transform3D &p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, const PagedArray<GeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) {
 	RENDER_TIMESTAMP("Setup Rendering 3D Material");
 
 	RD::get_singleton()->draw_command_begin_label("Render 3D Material");

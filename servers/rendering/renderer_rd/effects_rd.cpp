@@ -41,7 +41,7 @@ bool EffectsRD::get_prefer_raster_effects() {
 	return prefer_raster_effects;
 }
 
-static _FORCE_INLINE_ void store_camera(const Projection &p_mtx, float *p_array) {
+static _FORCE_INLINE_ void store_camera(const CameraMatrix &p_mtx, float *p_array) {
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			p_array[i * 4 + j] = p_mtx.matrix[i][j];
@@ -281,7 +281,7 @@ void EffectsRD::taa_resolve(RID p_frame, RID p_temp, RID p_depth, RID p_velocity
 	RD::get_singleton()->compute_list_end();
 }
 
-void EffectsRD::screen_space_reflection(RID p_diffuse, RID p_normal_roughness, RenderingServer::EnvironmentSSRRoughnessQuality p_roughness_quality, RID p_blur_radius, RID p_blur_radius2, RID p_metallic, const Color &p_metallic_mask, RID p_depth, RID p_scale_depth, RID p_scale_normal, RID p_output, RID p_output_blur, const Size2i &p_screen_size, int p_max_steps, float p_fade_in, float p_fade_out, float p_tolerance, const Projection &p_camera) {
+void EffectsRD::screen_space_reflection(RID p_diffuse, RID p_normal_roughness, RenderingServer::EnvironmentSSRRoughnessQuality p_roughness_quality, RID p_blur_radius, RID p_blur_radius2, RID p_metallic, const Color &p_metallic_mask, RID p_depth, RID p_scale_depth, RID p_scale_normal, RID p_output, RID p_output_blur, const Size2i &p_screen_size, int p_max_steps, float p_fade_in, float p_fade_out, float p_tolerance, const CameraMatrix &p_camera) {
 	RD::ComputeListID compute_list = RD::get_singleton()->compute_list_begin();
 
 	{ //scale color and depth to half
@@ -400,7 +400,7 @@ void EffectsRD::screen_space_reflection(RID p_diffuse, RID p_normal_roughness, R
 	RD::get_singleton()->compute_list_end();
 }
 
-void EffectsRD::sub_surface_scattering(RID p_diffuse, RID p_diffuse2, RID p_depth, const Projection &p_camera, const Size2i &p_screen_size, float p_scale, float p_depth_scale, RenderingServer::SubSurfaceScatteringQuality p_quality) {
+void EffectsRD::sub_surface_scattering(RID p_diffuse, RID p_diffuse2, RID p_depth, const CameraMatrix &p_camera, const Size2i &p_screen_size, float p_scale, float p_depth_scale, RenderingServer::SubSurfaceScatteringQuality p_quality) {
 	RD::ComputeListID compute_list = RD::get_singleton()->compute_list_begin();
 
 	Plane p = p_camera.xform4(Plane(1, 0, -1, 1));
@@ -546,7 +546,7 @@ void EffectsRD::luminance_reduction_raster(RID p_source_texture, const Size2i p_
 	}
 }
 
-void EffectsRD::downsample_depth(RID p_depth_buffer, const Vector<RID> &p_depth_mipmaps, RS::EnvironmentSSAOQuality p_ssao_quality, RS::EnvironmentSSILQuality p_ssil_quality, bool p_invalidate_uniform_set, bool p_ssao_half_size, bool p_ssil_half_size, Size2i p_full_screen_size, const Projection &p_projection) {
+void EffectsRD::downsample_depth(RID p_depth_buffer, const Vector<RID> &p_depth_mipmaps, RS::EnvironmentSSAOQuality p_ssao_quality, RS::EnvironmentSSILQuality p_ssil_quality, bool p_invalidate_uniform_set, bool p_ssao_half_size, bool p_ssil_half_size, Size2i p_full_screen_size, const CameraMatrix &p_projection) {
 	// Downsample and deinterleave the depth buffer for SSAO and SSIL
 	RD::ComputeListID compute_list = RD::get_singleton()->compute_list_begin();
 
@@ -676,7 +676,7 @@ void EffectsRD::gather_ssao(RD::ComputeListID p_compute_list, const Vector<RID> 
 	RD::get_singleton()->compute_list_add_barrier(p_compute_list);
 }
 
-void EffectsRD::generate_ssao(RID p_normal_buffer, RID p_depth_mipmaps_texture, RID p_ao, const Vector<RID> p_ao_slices, RID p_ao_pong, const Vector<RID> p_ao_pong_slices, RID p_upscale_buffer, RID p_importance_map, RID p_importance_map_pong, const Projection &p_projection, const SSAOSettings &p_settings, bool p_invalidate_uniform_sets, RID &r_gather_uniform_set, RID &r_importance_map_uniform_set) {
+void EffectsRD::generate_ssao(RID p_normal_buffer, RID p_depth_mipmaps_texture, RID p_ao, const Vector<RID> p_ao_slices, RID p_ao_pong, const Vector<RID> p_ao_pong_slices, RID p_upscale_buffer, RID p_importance_map, RID p_importance_map_pong, const CameraMatrix &p_projection, const SSAOSettings &p_settings, bool p_invalidate_uniform_sets, RID &r_gather_uniform_set, RID &r_importance_map_uniform_set) {
 	RD::ComputeListID compute_list = RD::get_singleton()->compute_list_begin();
 	memset(&ssao.gather_push_constant, 0, sizeof(SSAOGatherPushConstant));
 	/* FIRST PASS */
@@ -948,7 +948,7 @@ void EffectsRD::gather_ssil(RD::ComputeListID p_compute_list, const Vector<RID> 
 	RD::get_singleton()->compute_list_add_barrier(p_compute_list);
 }
 
-void EffectsRD::screen_space_indirect_lighting(RID p_diffuse, RID p_destination, RID p_normal_buffer, RID p_depth_mipmaps_texture, RID p_ssil, const Vector<RID> p_ssil_slices, RID p_ssil_pong, const Vector<RID> p_ssil_pong_slices, RID p_importance_map, RID p_importance_map_pong, RID p_edges, const Vector<RID> p_edges_slices, const Projection &p_projection, const Projection &p_last_projection, const SSILSettings &p_settings, bool p_invalidate_uniform_sets, RID &r_gather_uniform_set, RID &r_importance_map_uniform_set, RID &r_projection_uniform_set) {
+void EffectsRD::screen_space_indirect_lighting(RID p_diffuse, RID p_destination, RID p_normal_buffer, RID p_depth_mipmaps_texture, RID p_ssil, const Vector<RID> p_ssil_slices, RID p_ssil_pong, const Vector<RID> p_ssil_pong_slices, RID p_importance_map, RID p_importance_map_pong, RID p_edges, const Vector<RID> p_edges_slices, const CameraMatrix &p_projection, const CameraMatrix &p_last_projection, const SSILSettings &p_settings, bool p_invalidate_uniform_sets, RID &r_gather_uniform_set, RID &r_importance_map_uniform_set, RID &r_projection_uniform_set) {
 	RD::get_singleton()->draw_command_begin_label("Process Screen Space Indirect Lighting");
 	//Store projection info before starting the compute list
 	SSILProjectionUniforms projection_uniforms;

@@ -176,98 +176,75 @@ _FORCE_INLINE_ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataTy
 			}
 		} break;
 		case ShaderLanguage::TYPE_IVEC2: {
+			Vector<int> iv = value;
+			int s = iv.size();
 			int32_t *gui = (int32_t *)data;
-			if (p_array_size > 0) {
-				Vector<int> iv = value;
-				int s = iv.size();
 
-				if (p_array_size <= 0) {
-					p_array_size = 1;
-				}
-				int count = 2 * p_array_size;
+			if (p_array_size <= 0) {
+				p_array_size = 1;
+			}
+			int count = 2 * p_array_size;
 
-				const int *r = iv.ptr();
-				for (int i = 0, j = 0; i < count; i += 2, j += 4) {
-					if (i < s) {
-						gui[j] = r[i];
-						gui[j + 1] = r[i + 1];
-					} else {
-						gui[j] = 0;
-						gui[j + 1] = 0;
-					}
-					gui[j + 2] = 0; // ignored
-					gui[j + 3] = 0; // ignored
+			const int *r = iv.ptr();
+			for (int i = 0, j = 0; i < count; i += 2, j += 4) {
+				if (i < s) {
+					gui[j] = r[i];
+					gui[j + 1] = r[i + 1];
+				} else {
+					gui[j] = 0;
+					gui[j + 1] = 0;
 				}
-			} else {
-				Vector2i v = value;
-				gui[0] = v.x;
-				gui[1] = v.y;
+				gui[j + 2] = 0; // ignored
+				gui[j + 3] = 0; // ignored
 			}
 		} break;
 		case ShaderLanguage::TYPE_IVEC3: {
+			Vector<int> iv = value;
+			int s = iv.size();
 			int32_t *gui = (int32_t *)data;
 
-			if (p_array_size > 0) {
-				Vector<int> iv = value;
-				int s = iv.size();
+			if (p_array_size <= 0) {
+				p_array_size = 1;
+			}
+			int count = 3 * p_array_size;
 
-				if (p_array_size <= 0) {
-					p_array_size = 1;
+			const int *r = iv.ptr();
+			for (int i = 0, j = 0; i < count; i += 3, j += 4) {
+				if (i < s) {
+					gui[j] = r[i];
+					gui[j + 1] = r[i + 1];
+					gui[j + 2] = r[i + 2];
+				} else {
+					gui[j] = 0;
+					gui[j + 1] = 0;
+					gui[j + 2] = 0;
 				}
-				int count = 3 * p_array_size;
-
-				const int *r = iv.ptr();
-				for (int i = 0, j = 0; i < count; i += 3, j += 4) {
-					if (i < s) {
-						gui[j] = r[i];
-						gui[j + 1] = r[i + 1];
-						gui[j + 2] = r[i + 2];
-					} else {
-						gui[j] = 0;
-						gui[j + 1] = 0;
-						gui[j + 2] = 0;
-					}
-					gui[j + 3] = 0; // ignored
-				}
-			} else {
-				Vector3i v = value;
-				gui[0] = v.x;
-				gui[1] = v.y;
-				gui[2] = v.z;
+				gui[j + 3] = 0; // ignored
 			}
 		} break;
 		case ShaderLanguage::TYPE_IVEC4: {
+			Vector<int> iv = value;
+			int s = iv.size();
 			int32_t *gui = (int32_t *)data;
 
-			if (p_array_size > 0) {
-				Vector<int> iv = value;
-				int s = iv.size();
+			if (p_array_size <= 0) {
+				p_array_size = 1;
+			}
+			int count = 4 * p_array_size;
 
-				if (p_array_size <= 0) {
-					p_array_size = 1;
+			const int *r = iv.ptr();
+			for (int i = 0; i < count; i += 4) {
+				if (i < s) {
+					gui[i] = r[i];
+					gui[i + 1] = r[i + 1];
+					gui[i + 2] = r[i + 2];
+					gui[i + 3] = r[i + 3];
+				} else {
+					gui[i] = 0;
+					gui[i + 1] = 0;
+					gui[i + 2] = 0;
+					gui[i + 3] = 0;
 				}
-				int count = 4 * p_array_size;
-
-				const int *r = iv.ptr();
-				for (int i = 0; i < count; i += 4) {
-					if (i < s) {
-						gui[i] = r[i];
-						gui[i + 1] = r[i + 1];
-						gui[i + 2] = r[i + 2];
-						gui[i + 3] = r[i + 3];
-					} else {
-						gui[i] = 0;
-						gui[i + 1] = 0;
-						gui[i + 2] = 0;
-						gui[i + 3] = 0;
-					}
-				}
-			} else {
-				Vector4i v = value;
-				gui[0] = v.x;
-				gui[1] = v.y;
-				gui[2] = v.z;
-				gui[3] = v.w;
 			}
 		} break;
 		case ShaderLanguage::TYPE_UINT: {
@@ -294,98 +271,75 @@ _FORCE_INLINE_ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataTy
 			}
 		} break;
 		case ShaderLanguage::TYPE_UVEC2: {
+			Vector<int> iv = value;
+			int s = iv.size();
 			uint32_t *gui = (uint32_t *)data;
-			if (p_array_size > 0) {
-				Vector<int> iv = value;
-				int s = iv.size();
 
-				if (p_array_size <= 0) {
-					p_array_size = 1;
-				}
-				int count = 2 * p_array_size;
+			if (p_array_size <= 0) {
+				p_array_size = 1;
+			}
+			int count = 2 * p_array_size;
 
-				const int *r = iv.ptr();
-				for (int i = 0, j = 0; i < count; i += 2, j += 4) {
-					if (i < s) {
-						gui[j] = r[i];
-						gui[j + 1] = r[i + 1];
-					} else {
-						gui[j] = 0;
-						gui[j + 1] = 0;
-					}
-					gui[j + 2] = 0; // ignored
-					gui[j + 3] = 0; // ignored
+			const int *r = iv.ptr();
+			for (int i = 0, j = 0; i < count; i += 2, j += 4) {
+				if (i < s) {
+					gui[j] = r[i];
+					gui[j + 1] = r[i + 1];
+				} else {
+					gui[j] = 0;
+					gui[j + 1] = 0;
 				}
-			} else {
-				Vector2i v = value;
-				gui[0] = v.x;
-				gui[1] = v.y;
+				gui[j + 2] = 0; // ignored
+				gui[j + 3] = 0; // ignored
 			}
 		} break;
 		case ShaderLanguage::TYPE_UVEC3: {
+			Vector<int> iv = value;
+			int s = iv.size();
 			uint32_t *gui = (uint32_t *)data;
 
-			if (p_array_size > 0) {
-				Vector<int> iv = value;
-				int s = iv.size();
+			if (p_array_size <= 0) {
+				p_array_size = 1;
+			}
+			int count = 3 * p_array_size;
 
-				if (p_array_size <= 0) {
-					p_array_size = 1;
+			const int *r = iv.ptr();
+			for (int i = 0, j = 0; i < count; i += 3, j += 4) {
+				if (i < s) {
+					gui[j] = r[i];
+					gui[j + 1] = r[i + 1];
+					gui[j + 2] = r[i + 2];
+				} else {
+					gui[j] = 0;
+					gui[j + 1] = 0;
+					gui[j + 2] = 0;
 				}
-				int count = 3 * p_array_size;
-
-				const int *r = iv.ptr();
-				for (int i = 0, j = 0; i < count; i += 3, j += 4) {
-					if (i < s) {
-						gui[j] = r[i];
-						gui[j + 1] = r[i + 1];
-						gui[j + 2] = r[i + 2];
-					} else {
-						gui[j] = 0;
-						gui[j + 1] = 0;
-						gui[j + 2] = 0;
-					}
-					gui[j + 3] = 0; // ignored
-				}
-			} else {
-				Vector3i v = value;
-				gui[0] = v.x;
-				gui[1] = v.y;
-				gui[2] = v.z;
+				gui[j + 3] = 0; // ignored
 			}
 		} break;
 		case ShaderLanguage::TYPE_UVEC4: {
+			Vector<int> iv = value;
+			int s = iv.size();
 			uint32_t *gui = (uint32_t *)data;
 
-			if (p_array_size > 0) {
-				Vector<int> iv = value;
-				int s = iv.size();
+			if (p_array_size <= 0) {
+				p_array_size = 1;
+			}
+			int count = 4 * p_array_size;
 
-				if (p_array_size <= 0) {
-					p_array_size = 1;
+			const int *r = iv.ptr();
+			for (int i = 0; i < count; i++) {
+				if (i < s) {
+					gui[i] = r[i];
+					gui[i + 1] = r[i + 1];
+					gui[i + 2] = r[i + 2];
+					gui[i + 3] = r[i + 3];
+				} else {
+					gui[i] = 0;
+					gui[i + 1] = 0;
+					gui[i + 2] = 0;
+					gui[i + 3] = 0;
 				}
-				int count = 4 * p_array_size;
-
-				const int *r = iv.ptr();
-				for (int i = 0; i < count; i++) {
-					if (i < s) {
-						gui[i] = r[i];
-						gui[i + 1] = r[i + 1];
-						gui[i + 2] = r[i + 2];
-						gui[i + 3] = r[i + 3];
-					} else {
-						gui[i] = 0;
-						gui[i + 1] = 0;
-						gui[i + 2] = 0;
-						gui[i + 3] = 0;
-					}
-				}
-			} else {
-				Vector4i v = value;
-				gui[0] = v.x;
-				gui[1] = v.y;
-				gui[2] = v.z;
-				gui[3] = v.w;
 			}
 		} break;
 		case ShaderLanguage::TYPE_FLOAT: {
@@ -550,13 +504,6 @@ _FORCE_INLINE_ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataTy
 					gui[1] = v.y;
 					gui[2] = v.z;
 					gui[3] = v.w;
-				} else if (value.get_type() == Variant::VECTOR4) {
-					Vector4 v = value;
-
-					gui[0] = v.x;
-					gui[1] = v.y;
-					gui[2] = v.z;
-					gui[3] = v.w;
 				} else {
 					Plane v = value;
 
@@ -713,7 +660,7 @@ _FORCE_INLINE_ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataTy
 						gui[i + 15] = 1;
 					}
 				}
-			} else if (value.get_type() == Variant::TRANSFORM3D) {
+			} else {
 				Transform3D v = value;
 				gui[0] = v.basis.rows[0][0];
 				gui[1] = v.basis.rows[1][0];
@@ -734,13 +681,6 @@ _FORCE_INLINE_ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataTy
 				gui[13] = v.origin.y;
 				gui[14] = v.origin.z;
 				gui[15] = 1;
-			} else {
-				Projection v = value;
-				for (int i = 0; i < 4; i++) {
-					for (int j = 0; j < 4; j++) {
-						gui[i * 4 + j] = v.matrix[i][j];
-					}
-				}
 			}
 		} break;
 		default: {
