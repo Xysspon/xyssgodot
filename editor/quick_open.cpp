@@ -31,6 +31,7 @@
 #include "quick_open.h"
 
 #include "core/os/keyboard.h"
+#include "editor/editor_node.h"
 
 void EditorQuickOpen::popup_dialog(const StringName &p_base, bool p_enable_multi, bool p_dontclear) {
 	base_type = p_base;
@@ -57,11 +58,12 @@ void EditorQuickOpen::_build_search_cache(EditorFileSystemDirectory *p_efsd) {
 
 	Vector<String> base_types = String(base_type).split(String(","));
 	for (int i = 0; i < p_efsd->get_file_count(); i++) {
+		String file = p_efsd->get_file_path(i);
 		String file_type = p_efsd->get_file_type(i);
+		String attached_script_type = p_efsd->get_file_resource_script_class_name(i);
 		// Iterate all possible base types.
 		for (String &parent_type : base_types) {
-			if (ClassDB::is_parent_class(file_type, parent_type)) {
-				String file = p_efsd->get_file_path(i);
+			if (ClassDB::is_parent_class(file_type, parent_type) || EditorNode::get_editor_data().script_class_is_parent(attached_script_type, parent_type)) {
 				files.push_back(file.substr(6, file.length()));
 
 				// Store refs to used icons.
