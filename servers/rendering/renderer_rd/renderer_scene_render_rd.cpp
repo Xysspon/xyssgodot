@@ -3543,22 +3543,21 @@ void RendererSceneRenderRD::_setup_lights(const PagedArray<RID> &p_lights, const
 					continue;
 				}
 
-				const real_t distance = camera_plane.distance_to(li->transform.origin);
+				const real_t depth = camera_plane.distance_to(li->transform.origin);
 
 				if (light_storage->light_is_distance_fade_enabled(li->light)) {
+					const real_t distance = p_camera_transform.origin.distance_squared_to(li->transform.origin);
 					const float fade_begin = light_storage->light_get_distance_fade_begin(li->light);
 					const float fade_length = light_storage->light_get_distance_fade_length(li->light);
 
-					if (distance > fade_begin) {
-						if (distance > fade_begin + fade_length) {
-							// Out of range, don't draw this light to improve performance.
-							continue;
-						}
+					if (distance > Math::pow(fade_begin + fade_length, 2)) {
+						// Out of range, don't draw this light to improve performance.
+						continue;
 					}
 				}
 
 				cluster.omni_light_sort[cluster.omni_light_count].instance = li;
-				cluster.omni_light_sort[cluster.omni_light_count].depth = distance;
+				cluster.omni_light_sort[cluster.omni_light_count].depth = depth;
 				cluster.omni_light_count++;
 			} break;
 			case RS::LIGHT_SPOT: {
